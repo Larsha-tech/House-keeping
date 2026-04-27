@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>HOBB</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#09090b;--s1:#111115;--s2:#18181b;--s3:#1e1e24;--s4:#27272d;--s5:#35353c;
+  --t1:#f8f8f9;--t2:#a1a1aa;--t3:#52525b;--t4:#3a3a42;
+  --em:#10b981;--edim:rgba(16,185,129,.12);--eglow:rgba(16,185,129,.22);
+  --ya:#f59e0b;--bl:#60a5fa;--rd:#ef4444;--vi:#8b5cf6;--or:#f97316;
+  --sw:220px;--th:52px
+}
+body{font-family:'Geist',system-ui,sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:3px;height:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--s4);border-radius:2px}
+
+/* sidebar */
+.sb{position:fixed;left:0;top:0;width:var(--sw);height:100vh;background:var(--s1);border-right:1px solid var(--s3);display:flex;flex-direction:column;z-index:40;transition:transform .28s cubic-bezier(.4,0,.2,1)}
+.sb-logo{padding:14px 15px;border-bottom:1px solid var(--s3);display:flex;align-items:center;gap:10px;flex-shrink:0}
+.lm{width:32px;height:32px;background:var(--em);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0;box-shadow:0 0 0 0 var(--eglow);transition:box-shadow .2s}
+.sb-logo:hover .lm{box-shadow:0 0 16px var(--eglow)}
+.sb-nav{flex:1;padding:7px;overflow-y:auto;display:flex;flex-direction:column;gap:1px}
+.sb-nav::-webkit-scrollbar{display:none}
+.sb-sec{font-size:10px;font-weight:600;color:var(--t4);text-transform:uppercase;letter-spacing:.8px;padding:11px 7px 4px;flex-shrink:0}
+.ni{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:7px;border:none;width:100%;text-align:left;font-family:inherit;font-size:13px;font-weight:500;color:var(--t3);background:transparent;cursor:pointer;transition:all .13s ease;position:relative;white-space:nowrap}
+.ni:hover{background:var(--s3);color:var(--t2)}
+.ni.on{background:var(--edim);color:var(--em)}
+.ni.on::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:16px;background:var(--em);border-radius:0 2px 2px 0}
+.sb-foot{padding:7px;border-top:1px solid var(--s3);flex-shrink:0}
+.utile{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:7px;background:var(--s3)}
+
+/* main */
+.wrap{margin-left:var(--sw);min-height:100vh;display:flex;flex-direction:column}
+.tbar{height:var(--th);background:var(--s1);border-bottom:1px solid var(--s3);display:flex;align-items:center;padding:0 18px;gap:10px;position:sticky;top:0;z-index:20;flex-shrink:0}
+.pgarea{flex:1;padding:18px}
+
+/* cards */
+.card{background:var(--s2);border:1px solid var(--s3);border-radius:10px;transition:border-color .18s}
+.card:hover{border-color:var(--s4)}
+.chd{padding:12px 16px;border-bottom:1px solid var(--s3);display:flex;align-items:center;justify-content:space-between}
+
+/* kpi */
+.kpi{background:var(--s2);border:1px solid var(--s3);border-radius:10px;padding:15px;transition:border-color .18s,transform .18s;cursor:default}
+.kpi:hover{border-color:var(--s5);transform:translateY(-1px)}
+
+/* badges */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:5px;font-size:11px;font-weight:600;letter-spacing:.1px}
+.bd{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.s-pending{color:#f59e0b;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.15)}
+.s-in_progress{color:#60a5fa;background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.15)}
+.s-completed{color:#10b981;background:var(--edim);border:1px solid var(--eglow)}
+.s-missed{color:#ef4444;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.15)}
+.s-approved{color:#8b5cf6;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.15)}
+.s-rejected{color:#f97316;background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.15)}
+.p-high{color:#ef4444;background:rgba(239,68,68,.08)}
+.p-medium{color:#f59e0b;background:rgba(245,158,11,.08)}
+.p-low{color:var(--t3);background:var(--s3)}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border-radius:7px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all .13s;white-space:nowrap}
+.btn:active{transform:scale(.97)}
+.bp{background:var(--em);color:#fff}.bp:hover{background:#0ea472;box-shadow:0 4px 14px var(--eglow)}
+.bg{background:transparent;color:var(--t2);border:1px solid var(--s4)}.bg:hover{border-color:var(--s5);color:var(--t1)}
+.brd{background:rgba(239,68,68,.08);color:var(--rd);border:1px solid rgba(239,68,68,.15)}.brd:hover{background:rgba(239,68,68,.14)}
+.bsm{padding:5px 10px;font-size:11px}
+.bic{padding:6px;border-radius:6px;background:var(--s3);border:1px solid var(--s4);color:var(--t3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .13s;font-family:inherit}
+.bic:hover{background:var(--s4);color:var(--t2)}.bic:active{transform:scale(.93)}
+.bic.rd{color:var(--rd);border-color:rgba(239,68,68,.15)}.bic.rd:hover{background:rgba(239,68,68,.1)}
+
+/* avatar */
+.av{border-radius:7px;background:var(--edim);border:1px solid var(--eglow);display:flex;align-items:center;justify-content:center;color:var(--em);font-weight:700;flex-shrink:0;font-size:11px;font-family:'Geist Mono',monospace}
+
+/* forms */
+.fld{display:flex;flex-direction:column;gap:5px}
+.fld label{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px}
+input,select,textarea{background:var(--bg);border:1px solid var(--s4);color:var(--t1);border-radius:7px;padding:8px 11px;font-family:inherit;font-size:13px;outline:none;transition:border-color .13s;width:100%}
+input:focus,select:focus,textarea:focus{border-color:var(--em);box-shadow:0 0 0 3px var(--edim)}
+input::placeholder,textarea::placeholder{color:var(--t4)}
+select option{background:var(--s2)}
+textarea{resize:vertical;min-height:56px}
+input:disabled{opacity:.5;cursor:not-allowed}
+
+/* progress */
+.pr{height:4px;background:var(--s4);border-radius:2px;overflow:hidden}
+.prf{height:100%;border-radius:2px;transition:width .65s cubic-bezier(.4,0,.2,1)}
+
+/* tabs */
+.tabrow{display:flex;gap:3px;background:var(--s2);border:1px solid var(--s3);border-radius:8px;padding:3px;overflow-x:auto}
+.tabrow::-webkit-scrollbar{display:none}
+.tb{padding:5px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:inherit;white-space:nowrap;transition:all .13s}
+.tb.on{background:var(--bg);color:var(--t1);box-shadow:0 1px 3px rgba(0,0,0,.35)}
+.tb:not(.on){background:transparent;color:var(--t3)}.tb:not(.on):hover{color:var(--t2)}
+
+/* modal */
+.mwrap{position:fixed;inset:0;z-index:60;display:flex;align-items:flex-end;justify-content:center;animation:bgi .14s ease}
+@media(min-width:640px){.mwrap{align-items:center;padding:20px}}
+.mbg{position:absolute;inset:0;background:rgba(0,0,0,.78);backdrop-filter:blur(8px)}
+.mbox{position:relative;background:var(--s2);border:1px solid var(--s4);border-radius:12px 12px 0 0;width:100%;max-width:500px;max-height:93vh;display:flex;flex-direction:column;animation:mu .2s cubic-bezier(.4,0,.2,1)}
+@media(min-width:640px){.mbox{border-radius:12px}}
+.mhd{padding:14px 17px;border-bottom:1px solid var(--s3);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.mbdy{overflow-y:auto;flex:1;padding:15px;display:flex;flex-direction:column;gap:11px}
+.mft{padding:11px 15px;border-top:1px solid var(--s3);display:flex;gap:8px;flex-shrink:0}
+
+/* divider list */
+.dl>*+*{border-top:1px solid var(--s3)}
+
+/* toast */
+.toast-wrap{position:fixed;bottom:20px;right:20px;z-index:100;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{padding:10px 14px;border-radius:8px;font-size:12px;font-weight:500;animation:tslide .2s ease;pointer-events:auto;max-width:320px;display:flex;align-items:center;gap:8px}
+.toast.ok{background:#0f2e1e;border:1px solid rgba(16,185,129,.3);color:#10b981}
+.toast.err{background:#2c1212;border:1px solid rgba(239,68,68,.3);color:#ef4444}
+.toast.info{background:var(--s2);border:1px solid var(--s4);color:var(--t2)}
+
+/* spinner */
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{width:16px;height:16px;border:2px solid var(--s4);border-top-color:var(--em);border-radius:50%;animation:spin .6s linear infinite;flex-shrink:0}
+
+/* sync badge */
+.sync-dot{width:6px;height:6px;border-radius:50%;background:var(--em);flex-shrink:0}
+@keyframes syncing{0%,100%{opacity:1}50%{opacity:.3}}
+.syncing{animation:syncing 1s ease-in-out infinite}
+
+/* autosave badge */
+.asave{font-size:11px;font-weight:500;font-family:'Geist Mono';padding:3px 8px;border-radius:5px;display:flex;align-items:center;gap:5px}
+.as-saving{color:#f59e0b;background:rgba(245,158,11,.1)}
+.as-saved{color:#10b981;background:var(--edim)}
+.as-err{color:var(--rd);background:rgba(239,68,68,.1)}
+
+/* checklist checkbox */
+.clcheck{width:15px;height:15px;border-radius:4px;border:1.5px solid var(--s5);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .13s}
+.clcheck.done{background:var(--em);border-color:var(--em)}
+.clcheck.done::after{content:'';width:8px;height:5px;border-left:1.5px solid #fff;border-bottom:1.5px solid #fff;transform:rotate(-45deg) translate(1px,-1px)}
+
+/* duty pulse */
+@keyframes duty{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.85)}}
+.duty{animation:duty 2.2s ease-in-out infinite}
+
+/* empty */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:36px 0;color:var(--t4);gap:7px}
+.empty p{font-size:13px;color:var(--t3)}
+
+/* login */
+.lbg{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--bg);position:relative;overflow:hidden}
+.lglow{position:absolute;pointer-events:none}
+.lcard{background:var(--s1);border:1px solid var(--s3);border-radius:13px;padding:26px;width:100%;max-width:375px;position:relative;z-index:1}
+
+/* loading */
+.loader{min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;background:var(--bg)}
+
+/* mobile */
+.mbbtn{display:none;padding:6px;border-radius:6px;background:var(--s3);border:1px solid var(--s4);color:var(--t2);cursor:pointer;align-items:center;justify-content:center}
+.sov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:39;backdrop-filter:blur(3px)}
+
+/* page entry */
+.pg{animation:pin .17s ease}
+
+/* status select (inline on card) */
+.sstatus{background:transparent;border:none;font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;padding:0;outline:none;color:inherit}
+
+@keyframes bgi{from{opacity:0}to{opacity:1}}
+@keyframes mu{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pin{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+@keyframes tslide{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:translateX(0)}}
+
+@media(max-width:768px){
+  .sb{transform:translateX(-100%)}.sb.open{transform:translateX(0)}
+  .sov.open{display:block}.wrap{margin-left:0}
+  .mbbtn{display:flex}.tbar-title{display:none}
+  .pgarea{padding:13px}.kgrid{grid-template-columns:1fr 1fr !important}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="module">
+import{h,render,Fragment}from'https://esm.sh/preact@10.23.2';
+import{useState,useEffect,useCallback,useRef,useMemo}from'https://esm.sh/preact@10.23.2/hooks';
+import htm from'https://esm.sh/htm@3.1.1';
+const html=htm.bind(h);
+
+/* ── CONFIG ────────────────────────────────────── */
+const BASE='/api', POLL=30_000;
+
+/* ── TOKEN STORE ───────────────────────────────── */
+const TK={
+  get:()=>localStorage.getItem('hobb_tk'),
+  set:v=>v?localStorage.setItem('hobb_tk',v):localStorage.removeItem('hobb_tk'),
+  parse:t=>{try{return JSON.parse(atob((t||'').split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));}catch{return null;}},
+};
+
+/* ── API CLIENT ────────────────────────────────── */
+async function req(path,o={}){
+  const h={'Content-Type':'application/json',...(o.headers||{})};
+  const tk=TK.get();if(tk)h.Authorization=`Bearer ${tk}`;
+  const r=await fetch(BASE+path,{...o,headers:h});
+  if(r.status===401){TK.set(null);window.dispatchEvent(new Event('hobb:unauth'));throw new Error('Session expired — please log in again');}
+  if(r.status===204)return null;
+  const d=await r.json().catch(()=>({}));
+  if(!r.ok)throw new Error(typeof d.detail==='string'?d.detail:Array.isArray(d.detail)?d.detail.map(e=>e.msg).join(', '):`Error ${r.status}`);
+  return d;
+}
+const A={
+  login:(e,p)=>req('/auth/login',{method:'POST',body:JSON.stringify({email:e,password:p})}),
+  users:()=>req('/users'),
+  addUser:d=>req('/users',{method:'POST',body:JSON.stringify(d)}),
+  delUser:id=>req(`/users/${id}`,{method:'DELETE'}),
+  tasks:()=>req('/tasks'),
+  addTask:d=>req('/tasks',{method:'POST',body:JSON.stringify(d)}),
+  updTask:(id,d)=>req(`/tasks/${id}`,{method:'PUT',body:JSON.stringify(d)}),
+  delTask:id=>req(`/tasks/${id}`,{method:'DELETE'}),
+  dupTask:id=>req(`/tasks/${id}/duplicate`,{method:'POST'}),
+  allAtt:(d)=>req(`/attendance/all${d?`?filter_date=${d}`:''}`) ,
+  report:(period,refDate)=>req(`/reports/summary?period=${period}&ref_date=${refDate}`),
+  approve:id=>req(`/tasks/${id}/approve`,{method:'POST'}),
+  reject:(id,reason='Rejected')=>req(`/tasks/${id}/reject`,{method:'POST',body:JSON.stringify({reason})}),
+  toggleCL:(id,done)=>req(`/checklist/${id}`,{method:'PUT',body:JSON.stringify({done})}),
+  locs:()=>req('/locations'),
+  myAtt:()=>req('/attendance/me?limit=14'),
+  clockIn:()=>req('/attendance/start',{method:'POST',body:JSON.stringify({notes:''})}),
+  clockOut:()=>req('/attendance/end',{method:'POST',body:JSON.stringify({notes:''})}),
+  upload:(file,task_id,kind)=>{
+    const fd=new FormData();fd.append('file',file);
+    if(task_id)fd.append('task_id',task_id);if(kind)fd.append('kind',kind);
+    const h2={};const tk=TK.get();if(tk)h2.Authorization=`Bearer ${tk}`;
+    return fetch(BASE+'/upload',{method:'POST',headers:h2,body:fd}).then(r=>r.json());
+  },
+};
+
+/* ── UTILS ─────────────────────────────────────── */
+const db=(fn,ms)=>{let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),ms);};};
+const inits=n=>(n||'').split(' ').filter(Boolean).map(w=>w[0]).join('').slice(0,2).toUpperCase()||'?';
+const fmtT=t=>t?(t||'').slice(0,5):'—';
+const fmtDT=dt=>dt?new Date(dt).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:false}):'—';
+const fmtDate=d=>d?new Date(d+'T00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short'}):'';
+const today=()=>new Date().toISOString().split('T')[0];
+const gc=p=>p>=80?'#10b981':p>=50?'#60a5fa':'#ef4444';
+
+/* ── ICONS ─────────────────────────────────────── */
+const PD={
+  home:'M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z',
+  tasks:'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01',
+  users:'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z',
+  check:'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
+  clock:'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z',
+  plus:'M12 4v16m8-8H4',
+  x:'M6 18L18 6M6 6l12 12',
+  edit:'M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z',
+  trash:'M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16',
+  logout:'M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1',
+  pin:'M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z',
+  cam:'M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z',
+  rep:'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15',
+  menu:'M4 6h16M4 12h16M4 18h7',
+  ok:'M5 13l4 4L19 7',
+  refresh:'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15',
+  upload:'M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12',
+  copy:'M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z',
+  chart:'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
+  chevl:'M15 19l-7-7 7-7',
+  chevr:'M9 5l7 7-7 7',
+};
+const Ic=({n,s=15,c=''})=>html`<svg xmlns="http://www.w3.org/2000/svg" width=${s} height=${s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style="flex-shrink:0" class=${c}><path d=${PD[n]||''}/></svg>`;
+
+/* ── ATOMS ─────────────────────────────────────── */
+const SL={pending:'Pending',in_progress:'In Progress',completed:'Completed',missed:'Missed',approved:'Approved',rejected:'Rejected'};
+const SC={pending:'#f59e0b',in_progress:'#60a5fa',completed:'#10b981',missed:'#ef4444',approved:'#8b5cf6',rejected:'#f97316'};
+const Av=({name,sz=32})=>html`<div class="av" style="width:${sz}px;height:${sz}px;border-radius:${Math.round(sz*.22)}px;font-size:${Math.round(sz*.31)}px">${inits(name)}</div>`;
+const Sb=({s})=>html`<span class="badge s-${s}"><span class="bd" style="background:${SC[s]||'#71717a'}"/>${SL[s]||s}</span>`;
+const Pb=({p})=>html`<span class="badge p-${p}">${p==='high'?'High':p==='medium'?'Med':'Low'}</span>`;
+const Bar=({v,c})=>html`<div class="pr"><div class="prf" style="width:${Math.max(0,Math.min(100,v))}%;background:${c}"/></div>`;
+const Spin=()=>html`<div class="spin"/>`;
+
+/* ── TOAST SYSTEM ──────────────────────────────── */
+let _toastFn=()=>{};
+const Toast=()=>{
+  const[toasts,sToasts]=useState([]);
+  _toastFn=(msg,type='info')=>{
+    const id=Date.now();
+    sToasts(t=>[...t,{id,msg,type}]);
+    setTimeout(()=>sToasts(t=>t.filter(x=>x.id!==id)),3500);
+  };
+  return html`<div class="toast-wrap">${toasts.map(t=>html`<div key=${t.id} class="toast ${t.type}">${t.msg}</div>`)}</div>`;
+};
+const notify=(msg,type='info')=>_toastFn(msg,type);
+
+/* ── LOGIN ─────────────────────────────────────── */
+const Login=({onLogin})=>{
+  const[em,sEm]=useState(''),[pw,sPw]=useState(''),[er,sEr]=useState(''),[bz,sBz]=useState(false);
+  const go=async()=>{
+    if(!em||!pw){sEr('Email and password are required.');return;}
+    sBz(true);sEr('');
+    try{const r=await A.login(em,pw);TK.set(r.access_token);onLogin(r);}
+    catch(e){sEr(e.message);}
+    sBz(false);
+  };
+  return html`
+  <div class="lbg">
+    <div class="lglow" style="width:600px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(16,185,129,.06),transparent 70%);top:-80px;left:50%;transform:translateX(-50%)"/>
+    <div class="lcard">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:22px">
+        <div class="lm" style="width:36px;height:36px;border-radius:9px;font-size:15px">H</div>
+        <div><p style="font-size:14px;font-weight:700;letter-spacing:-.15px">HOBB</p><p style="font-size:11px;color:var(--t3)">Housekeeping Management</p></div>
+      </div>
+      <p style="font-size:17px;font-weight:700;letter-spacing:-.25px;margin-bottom:16px">Sign in</p>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div class="fld"><label>Email address</label><input type="email" value=${em} onInput=${e=>sEm(e.target.value)} placeholder="you@company.com" autoFocus/></div>
+        <div class="fld"><label>Password</label><input type="password" value=${pw} onInput=${e=>sPw(e.target.value)} onKeyDown=${e=>e.key==='Enter'&&go()} placeholder="••••••••"/></div>
+        ${er&&html`<div style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.18);border-radius:6px;padding:8px 11px;font-size:12px;color:var(--rd)">${er}</div>`}
+        <button class="btn bp" style="width:100%;justify-content:center;padding:10px;font-size:13px;margin-top:2px" onClick=${go} disabled=${bz}>
+          ${bz?html`<${Spin}/>`:''}${bz?'Signing in…':'Continue →'}
+        </button>
+      </div>
+    </div>
+  </div>`;
+};
+
+/* ── LOADING SCREEN ────────────────────────────── */
+const Loader=()=>html`<div class="loader"><div class="lm" style="width:40px;height:40px;border-radius:10px;font-size:17px">H</div><${Spin}/><p style="font-size:12px;color:var(--t3)">Loading…</p></div>`;
+
+/* ── DASHBOARD ─────────────────────────────────── */
+const Dashboard=({tasks,users,myAtt})=>{
+  const staff=users.filter(u=>u.role==='staff'||u.role==='supervisor');
+  const tot=tasks.length,dn=tasks.filter(t=>t.status==='completed').length,ms=tasks.filter(t=>t.status==='missed').length,pe=tasks.filter(t=>['pending','in_progress'].includes(t.status)).length;
+  const pct=tot?Math.round(dn/tot*100):0;
+  const todayStr=today();
+  const todayRec=myAtt.find(a=>a.date===todayStr);
+  const kpis=[
+    {l:'Total Today',v:tot,  i:'tasks',c:'#60a5fa',bg:'rgba(96,165,250,.1)'},
+    {l:'Pending',    v:pe,   i:'clock',c:'#f59e0b',bg:'rgba(245,158,11,.1)'},
+    {l:'Completed',  v:dn,   i:'check',c:'#10b981',bg:'rgba(16,185,129,.1)'},
+    {l:'Missed',     v:ms,   i:'x',    c:'#ef4444',bg:'rgba(239,68,68,.1)'},
+  ];
+  return html`
+  <div class="pg" style="display:flex;flex-direction:column;gap:13px">
+    <div><p style="font-size:19px;font-weight:700;letter-spacing:-.2px">Dashboard</p><p style="font-size:12px;color:var(--t3);margin-top:2px">${new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</p></div>
+    <div class="kgrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:9px">
+      ${kpis.map(k=>html`
+        <div class="kpi" key=${k.l}>
+          <div style="width:32px;height:32px;border-radius:8px;background:${k.bg};color:${k.c};display:flex;align-items:center;justify-content:center;margin-bottom:12px"><${Ic} n=${k.i} s=${15}/></div>
+          <p style="font-size:24px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1;letter-spacing:-.5px;color:${k.c}">${k.v}</p>
+          <p style="font-size:11px;color:var(--t3);margin-top:4px;font-weight:500;text-transform:uppercase;letter-spacing:.4px">${k.l}</p>
+        </div>`)}
+    </div>
+    <div class="card" style="padding:15px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:11px">
+        <div><p style="font-size:13px;font-weight:600">Completion Rate</p><p style="font-size:11px;color:var(--t3);margin-top:1px">${dn} of ${tot} tasks done today</p></div>
+        <span style="font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;color:${gc(pct)}">${pct}<span style="font-size:12px;color:var(--t3);font-weight:500">%</span></span>
+      </div>
+      <${Bar} v=${pct} c=${gc(pct)}/>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+      <div class="card" style="overflow:hidden">
+        <div class="chd"><span style="font-size:13px;font-weight:600">Staff Activity</span></div>
+        <div class="dl">
+          ${staff.map(s=>{
+            const ut=tasks.filter(t=>t.assigned_to===s.id),ud=ut.filter(t=>t.status==='completed').length;
+            const active=ut.some(t=>t.status==='in_progress');
+            return html`<div key=${s.id} style="display:flex;align-items:center;gap:9px;padding:10px 14px">
+              <${Av} name=${s.name} sz=${30}/>
+              <div style="flex:1;min-width:0"><p style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.name}</p><p style="font-size:11px;color:var(--t3);margin-top:1px">${ud}/${ut.length} done</p></div>
+              <div style="display:flex;align-items:center;gap:5px;flex-shrink:0">
+                ${active?html`<span class="duty" style="width:6px;height:6px;border-radius:50%;background:#10b981"/>`:html`<span style="width:6px;height:6px;border-radius:50%;background:var(--s5)"/>`}
+                <span style="font-size:11px;font-weight:500;color:${active?'#10b981':'var(--t3)'}">${active?'Active':'Idle'}</span>
+              </div>
+            </div>`;
+          })}
+          ${!staff.length&&html`<p style="font-size:12px;color:var(--t3);padding:12px 14px">No staff found</p>`}
+        </div>
+      </div>
+      <div class="card" style="overflow:hidden">
+        <div class="chd"><span style="font-size:13px;font-weight:600">All Tasks</span></div>
+        <div class="dl" style="overflow-y:auto;max-height:240px">
+          ${tasks.length?tasks.map(t=>html`<div key=${t.id} style="display:flex;align-items:center;gap:9px;padding:9px 14px">
+            <div style="width:6px;height:6px;border-radius:50%;background:${SC[t.status]||'#71717a'};flex-shrink:0"/>
+            <div style="flex:1;min-width:0"><p style="font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.title}</p><p style="font-size:11px;color:var(--t3);margin-top:1px">${t.assignee_name||'Unassigned'} · ${fmtT(t.due_time)}</p></div>
+          </div>`):html`<p style="font-size:12px;color:var(--t3);padding:12px 14px">No tasks today</p>`}
+        </div>
+      </div>
+    </div>
+  </div>`;
+};
+
+/* ── TASK FORM MODAL ───────────────────────────── */
+const TModal=({task,users,locs,onCreated,onUpdated,onClose})=>{
+  const isEdit=!!task;
+  const staff=users.filter(u=>u.role==='staff'||u.role==='supervisor');
+  const D={title:'',description:'',location_id:'',priority:'medium',due_date:today(),due_time:'09:00',assigned_to:staff[0]?.id||'',status:'pending',shift:'morning',recurrence:'none',checklist:[]};
+  const[f,sF]=useState(()=>isEdit?{...D,...task,due_time:fmtT(task.due_time||''),due_date:task.due_date||today()}:D);
+  const[ni,sNi]=useState('');
+  const[as,sAs]=useState('idle'); // idle|saving|saved|error
+  const[busy,sBz]=useState(false);
+
+  const upd=(k,v)=>{
+    const nf={...f,[k]:v};sF(nf);
+    if(isEdit)dSave(nf);
+  };
+
+  const persist=useCallback(async(data)=>{
+    if(!isEdit)return;
+    sAs('saving');
+    try{
+      const out=await A.updTask(task.id,{
+        title:data.title,description:data.description,location_id:data.location_id||null,
+        priority:data.priority,due_date:data.due_date||null,
+        due_time:data.due_time?(data.due_time.length===5?data.due_time+':00':data.due_time):null,
+        assigned_to:data.assigned_to||null,shift:data.shift,recurrence:data.recurrence,status:data.status,
+      });
+      onUpdated(out);sAs('saved');setTimeout(()=>sAs('idle'),2500);
+    }catch(e){sAs('error');notify(e.message,'err');}
+  },[task?.id,isEdit]);
+
+  const dSave=useMemo(()=>db(persist,700),[persist]);
+
+  const addCL=()=>{if(ni.trim()){sF(x=>({...x,checklist:[...x.checklist,{id:`new_${Date.now()}`,text:ni.trim(),done:false}]}));sNi('');}};
+
+  const create=async()=>{
+    sBz(true);
+    try{
+      const out=await A.addTask({
+        title:f.title,description:f.description||null,location_id:f.location_id||null,
+        priority:f.priority,due_date:f.due_date||null,
+        due_time:f.due_time?(f.due_time.length===5?f.due_time+':00':f.due_time):null,
+        assigned_to:f.assigned_to||null,shift:f.shift,recurrence:f.recurrence,
+        checklist:f.checklist.map(c=>({text:c.text,done:c.done||false})),
+      });
+      onCreated(out);onClose();notify('Task created','ok');
+    }catch(e){notify(e.message,'err');}
+    sBz(false);
+  };
+
+  const asLabel=as==='saving'?'Saving…':as==='saved'?'Saved ✓':as==='error'?'Error':'';
+  const asCls=as==='saving'?'as-saving':as==='saved'?'as-saved':as==='error'?'as-err':'';
+
+  return html`
+  <div class="mwrap">
+    <div class="mbg" onClick=${onClose}/>
+    <div class="mbox">
+      <div class="mhd">
+        <div style="display:flex;align-items:center;gap:10px">
+          <p style="font-size:14px;font-weight:700">${isEdit?'Edit Task':'New Task'}</p>
+          ${isEdit&&as!=='idle'&&html`<span class="asave ${asCls}">${as==='saving'?html`<${Spin}/>`:''}${asLabel}</span>`}
+        </div>
+        <button class="bic" onClick=${onClose}><${Ic} n="x" s=${14}/></button>
+      </div>
+      <div class="mbdy">
+        <div class="fld"><label>Title *</label><input value=${f.title} onInput=${e=>upd('title',e.target.value)} placeholder="e.g. Clean Main Lobby" autoFocus/></div>
+        <div class="fld"><label>Description</label><textarea rows="2" value=${f.description||''} onInput=${e=>upd('description',e.target.value)} placeholder="Task details…"/></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="fld"><label>Location</label>
+            ${locs.length?html`<select value=${f.location_id||''} onChange=${e=>upd('location_id',e.target.value)}><option value="">— None —</option>${locs.map(l=>html`<option key=${l.id} value=${l.id}>${l.name}</option>`)}</select>`:html`<input placeholder="No locations (add via API)" disabled/>`}
+          </div>
+          <div class="fld"><label>Priority</label><select value=${f.priority} onChange=${e=>upd('priority',e.target.value)}><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="fld"><label>Due Date</label><input type="date" value=${f.due_date||''} onInput=${e=>upd('due_date',e.target.value)}/></div>
+          <div class="fld"><label>Due Time</label><input type="time" value=${f.due_time||''} onInput=${e=>upd('due_time',e.target.value)}/></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="fld"><label>Assign To</label><select value=${f.assigned_to||''} onChange=${e=>upd('assigned_to',e.target.value)}><option value="">— Unassigned —</option>${staff.map(u=>html`<option key=${u.id} value=${u.id}>${u.name}</option>`)}</select></div>
+          <div class="fld"><label>Shift</label><select value=${f.shift} onChange=${e=>upd('shift',e.target.value)}><option value="morning">Morning</option><option value="afternoon">Afternoon</option><option value="evening">Evening</option><option value="night">Night</option></select></div>
+        </div>
+        ${isEdit&&html`<div class="fld"><label>Status</label><select value=${f.status} onChange=${e=>upd('status',e.target.value)}>${['pending','in_progress','completed','missed'].map(s=>html`<option key=${s} value=${s}>${SL[s]}</option>`)}</select></div>`}
+        <div class="fld"><label>Recurrence</label><select value=${f.recurrence} onChange=${e=>upd('recurrence',e.target.value)}><option value="none">One-time</option><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select></div>
+        ${!isEdit&&html`
+        <div>
+          <label style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:7px">Checklist items</label>
+          <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:6px">
+            ${f.checklist.map((c,i)=>html`<div key=${c.id} style="display:flex;align-items:center;gap:7px;background:var(--s3);border-radius:6px;padding:7px 10px">
+              <span style="font-size:11px;color:var(--t3);font-family:'Geist Mono';min-width:16px">${i+1}</span>
+              <span style="flex:1;font-size:13px">${c.text}</span>
+              <button class="bic" style="background:none;border:none;padding:2px" onClick=${()=>sF(x=>({...x,checklist:x.checklist.filter(x=>x.id!==c.id)}))}><${Ic} n="x" s=${12}/></button>
+            </div>`)}
+          </div>
+          <div style="display:flex;gap:7px"><input value=${ni} onInput=${e=>sNi(e.target.value)} onKeyDown=${e=>e.key==='Enter'&&addCL()} placeholder="Add checklist item…" style="flex:1"/><button class="btn bp bsm" onClick=${addCL} style="flex-shrink:0"><${Ic} n="plus" s=${12}/></button></div>
+        </div>`}
+      </div>
+      <div class="mft">
+        <button class="btn bg" onClick=${onClose} style="flex:1;justify-content:center">Cancel</button>
+        ${!isEdit?html`<button class="btn bp" onClick=${create} disabled=${!f.title.trim()||busy} style="flex:1;justify-content:center">${busy?html`<${Spin}/>`:''}${busy?'Creating…':'Create Task'}</button>`:html`<button class="btn bg" onClick=${onClose} style="flex:1;justify-content:center">Done</button>`}
+      </div>
+    </div>
+  </div>`;
+};
+
+/* ── TASKS PAGE ────────────────────────────────── */
+const Tasks=({tasks,users,locs,user,onToggleCL,onUpdate,onDelete,onAdd,onDuplicate})=>{
+  const[fl,sfl]=useState('all'),[mo,sMo]=useState(null);
+  const isA=['admin','supervisor'].includes(user.role);
+  const FS=['all','pending','in_progress','completed','missed','approved'];
+  const fl2=f=>({all:'All',pending:'Pending',in_progress:'In Progress',completed:'Completed',missed:'Missed',approved:'Approved'}[f]||f);
+  const fc=f=>f==='all'?tasks.length:tasks.filter(t=>t.status===f).length;
+  const list=tasks.filter(t=>fl==='all'||t.status===fl);
+
+  return html`
+  <div class="pg" style="display:flex;flex-direction:column;gap:13px">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+      <div><p style="font-size:19px;font-weight:700;letter-spacing:-.2px">Tasks</p><p style="font-size:12px;color:var(--t3);margin-top:2px">${tasks.length} tasks${isA?'':', assigned to you'}</p></div>
+      ${isA&&html`<button class="btn bp" onClick=${()=>sMo('new')}><${Ic} n="plus" s=${13}/>New task</button>`}
+    </div>
+    <div class="tabrow">${FS.map(f=>html`<button key=${f} class="tb ${fl===f?'on':''}" onClick=${()=>sfl(f)}>${fl2(f)} <span style="margin-left:3px;opacity:.55;font-variant-numeric:tabular-nums">${fc(f)}</span></button>`)}</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      ${list.map(t=>{
+        const cd=t.checklist.filter(c=>c.done).length,cp=t.checklist.length?cd/t.checklist.length*100:0;
+        const canEdit=isA||(t.assigned_to===user.id&&t.status!=='approved');
+        return html`<div class="card" style="padding:14px" key=${t.id}>
+          <div style="display:flex;gap:9px;margin-bottom:10px">
+            <div style="flex:1;min-width:0">
+              <p style="font-size:14px;font-weight:600;margin-bottom:${t.description?'4px':'6px'};letter-spacing:-.1px">${t.title}</p>
+              ${t.description&&html`<p style="font-size:12px;color:var(--t3);line-height:1.5;margin-bottom:6px">${t.description}</p>`}
+              <div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center">
+                <${Sb} s=${t.status}/><${Pb} p=${t.priority}/>
+                ${t.recurrence!=='none'&&html`<span class="badge p-low"><${Ic} n="rep" s=${9}/>${t.recurrence}</span>`}
+                ${t.location_name&&html`<span class="badge p-low"><${Ic} n="pin" s=${9}/>${t.location_name}</span>`}
+              </div>
+            </div>
+            ${(isA||canEdit)&&html`<div style="display:flex;gap:5px;flex-shrink:0">
+              ${isA&&html`<button class="bic" onClick=${()=>sMo(t)} title="Edit"><${Ic} n="edit" s=${13}/></button>`}
+              ${isA&&html`<button class="bic" onClick=${()=>onDuplicate(t.id)} title="Duplicate"><${Ic} n="copy" s=${13}/></button>`}
+              ${isA&&html`<button class="bic rd" onClick=${()=>{if(confirm('Delete this task?'))onDelete(t.id)}} title="Delete"><${Ic} n="trash" s=${13}/></button>`}
+            </div>`}
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:10px;font-size:11px;color:var(--t3);margin-bottom:${t.checklist.length?'10px':'0'}">
+            ${t.due_time&&html`<span style="display:flex;align-items:center;gap:3px"><${Ic} n="clock" s=${10}/>${fmtT(t.due_time)}</span>`}
+            ${t.assignee_name&&html`<span>${t.assignee_name}</span>`}
+            ${t.checklist.length&&html`<span style="font-family:'Geist Mono'">${cd}/${t.checklist.length} items</span>`}
+          </div>
+          ${t.checklist.length>0&&html`<div style="margin-bottom:10px"><${Bar} v=${cp} c=${cp===100?'#10b981':cp>50?'#60a5fa':'#f59e0b'}/></div>`}
+          ${t.checklist.length>0&&html`
+          <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:10px">
+            ${t.checklist.map(c=>html`<div key=${c.id} style="display:flex;align-items:center;gap:8px;padding:5px 0" onClick=${()=>canEdit&&onToggleCL(t.id,c.id,!c.done)}>
+              <div class="clcheck ${c.done?'done':''}" style="cursor:${canEdit?'pointer':'default'}"/>
+              <span style="font-size:12px;color:${c.done?'var(--t3)':'var(--t2)'};text-decoration:${c.done?'line-through':'none'};flex:1;cursor:${canEdit?'pointer':'default'}">${c.text}</span>
+            </div>`)}
+          </div>`}
+          <div style="display:flex;align-items:center;justify-content:space-between;padding-top:9px;border-top:1px solid var(--s3)">
+            <div style="display:flex;align-items:center;gap:7px">
+              <${Av} name=${t.assignee_name||'?'} sz=${22}/>
+              <span style="font-size:12px;color:var(--t2)">${t.assignee_name||'Unassigned'}</span>
+            </div>
+            ${canEdit&&!isA&&html`<select class="bg" style="background:transparent;border:1px solid var(--s4);border-radius:6px;font-size:11px;font-weight:600;padding:4px 8px;cursor:pointer;color:var(--t2)" value=${t.status} onChange=${e=>onUpdate(t.id,{status:e.target.value})}>
+              ${['pending','in_progress','completed'].map(s=>html`<option key=${s} value=${s}>${SL[s]}</option>`)}
+            </select>`}
+            ${!isA&&t.assigned_to===user.id&&t.status==='approved'&&html`<span style="font-size:11px;color:var(--t3);display:flex;align-items:center;gap:3px"><${Ic} n="lock" s=${11}/>Approved – locked</span>`}
+          </div>
+        </div>`;
+      })}
+      ${!list.length&&html`<div class="empty"><${Ic} n="tasks" s=${30}/><p>No ${fl==='all'?'':fl.replace('_',' ')} tasks</p></div>`}
+    </div>
+    ${mo&&html`<${TModal} task=${mo==='new'?null:mo} users=${users} locs=${locs}
+      onCreated=${t=>{onAdd(t);sMo(null);}}
+      onUpdated=${t=>{onUpdate(t.id,t,true);}}
+      onClose=${()=>sMo(null)}/>`}
+  </div>`;
+};
+
+/* ── STAFF PAGE ────────────────────────────────── */
+const Staff=({users,tasks,onAdd,onRemove,isAdmin})=>{
+  const[ao,sAo]=useState(false),[fm,sFm]=useState({name:'',email:'',password:'',role:'staff'}),[bz,sBz]=useState(false);
+  const sf2=(k,v)=>sFm(f=>({...f,[k]:v}));
+  const staff=users.filter(u=>u.role==='staff'||u.role==='supervisor');
+  const doAdd=async()=>{
+    if(!fm.name||!fm.email||!fm.password){notify('Name, email and password are required','err');return;}
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fm.email)){notify('Please enter a valid email address','err');return;}
+    sBz(true);
+    try{const u=await A.addUser(fm);onAdd(u);sFm({name:'',email:'',password:'',role:'staff'});sAo(false);notify('Staff member added','ok');}
+    catch(e){notify(e.message,'err');}
+    sBz(false);
+  };
+  const doRemove=async id=>{
+    if(!confirm('Remove this staff member?'))return;
+    try{await A.delUser(id);onRemove(id);notify('Staff removed','ok');}
+    catch(e){notify(e.message,'err');}
+  };
+  return html`
+  <div class="pg" style="display:flex;flex-direction:column;gap:13px">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+      <div><p style="font-size:19px;font-weight:700;letter-spacing:-.2px">Staff</p><p style="font-size:12px;color:var(--t3);margin-top:2px">${staff.length} team members</p></div>
+      ${isAdmin&&html`<button class="btn bp" onClick=${()=>sAo(true)}><${Ic} n="plus" s=${13}/>Add member</button>`}
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      ${staff.map(s=>{
+        const mt=tasks.filter(t=>t.assigned_to===s.id),dn=mt.filter(t=>t.status==='completed').length,ms=mt.filter(t=>t.status==='missed').length,pt=mt.length?Math.round(dn/mt.length*100):0;
+        return html`<div class="card" style="padding:15px" key=${s.id}>
+          <div style="display:flex;align-items:center;gap:11px;margin-bottom:13px">
+            <${Av} name=${s.name} sz=${44}/>
+            <div style="flex:1;min-width:0"><p style="font-size:14px;font-weight:600;letter-spacing:-.1px">${s.name}</p><p style="font-size:12px;color:var(--t3);margin-top:2px">${s.email}</p></div>
+            <span class="badge ${s.role==='supervisor'?'s-approved':'p-low'}">${s.role}</span>
+            ${isAdmin&&html`<button class="btn brd bsm" onClick=${()=>doRemove(s.id)}><${Ic} n="trash" s=${12}/></button>`}
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px">
+            ${[['Tasks',mt.length,false],['Completed',dn,'#10b981'],['Missed',ms,'#ef4444']].map(([l,v,c])=>html`<div key=${l} style="background:var(--s3);border-radius:7px;padding:9px;text-align:center"><p style="font-size:19px;font-weight:700;color:${c||'var(--t1)'};font-variant-numeric:tabular-nums;line-height:1">${v}</p><p style="font-size:10px;color:var(--t3);margin-top:3px;text-transform:uppercase;letter-spacing:.4px;font-weight:600">${l}</p></div>`)}
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--t3);margin-bottom:5px;font-weight:500"><span>Completion</span><span style="color:${gc(pt)};font-weight:700;font-variant-numeric:tabular-nums">${pt}%</span></div>
+            <${Bar} v=${pt} c=${gc(pt)}/>
+          </div>
+        </div>`;
+      })}
+      ${!staff.length&&html`<div class="empty"><${Ic} n="users" s=${30}/><p>No staff members found</p></div>`}
+    </div>
+    ${ao&&html`<div class="mwrap"><div class="mbg" onClick=${()=>sAo(false)}/>
+      <div class="mbox" style="max-width:360px">
+        <div class="mhd"><p style="font-size:14px;font-weight:700">Add Staff Member</p><button class="bic" onClick=${()=>sAo(false)}><${Ic} n="x" s=${13}/></button></div>
+        <div class="mbdy">
+          <div class="fld"><label>Full Name *</label><input value=${fm.name} onInput=${e=>sf2('name',e.target.value)} placeholder="e.g. Ravi Kumar"/></div>
+          <div class="fld"><label>Email *</label><input type="email" value=${fm.email} onInput=${e=>sf2('email',e.target.value)} placeholder="ravi@company.com"/></div>
+          <div class="fld"><label>Password *</label><input type="password" value=${fm.password} onInput=${e=>sf2('password',e.target.value)} placeholder="Min. 6 characters"/></div>
+          <div class="fld"><label>Role</label><select value=${fm.role} onChange=${e=>sf2('role',e.target.value)}><option value="staff">Staff</option><option value="supervisor">Supervisor</option></select></div>
+        </div>
+        <div class="mft">
+          <button class="btn bg" onClick=${()=>sAo(false)} style="flex:1;justify-content:center">Cancel</button>
+          <button class="btn bp" onClick=${doAdd} disabled=${bz} style="flex:1;justify-content:center">${bz?html`<${Spin}/>`:''}${bz?'Adding…':'Add Member'}</button>
+        </div>
+      </div>
+    </div>`}
+  </div>`;
+};
+
+/* ── APPROVALS PAGE ────────────────────────────── */
+const Approvals=({tasks,users,onApprove,onReject})=>{
+  const pend=tasks.filter(t=>t.status==='completed'),appr=tasks.filter(t=>t.status==='approved'),rej=tasks.filter(t=>t.status==='rejected');
+  const Row=({t,actions})=>{
+    const cd=t.checklist.filter(c=>c.done).length,cp=t.checklist.length?Math.round(cd/t.checklist.length*100):0;
+    return html`<div class="card" style="padding:14px" key=${t.id}>
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px">
+        <div style="flex:1;min-width:0">
+          <p style="font-size:14px;font-weight:600;margin-bottom:5px;letter-spacing:-.1px">${t.title}</p>
+          <div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center">
+            <${Sb} s=${t.status}/><${Pb} p=${t.priority}/>
+            ${t.location_name&&html`<span class="badge p-low"><${Ic} n="pin" s=${9}/>${t.location_name}</span>`}
+          </div>
+        </div>
+      </div>
+      ${t.description&&html`<p style="font-size:12px;color:var(--t2);line-height:1.55;margin-bottom:9px;padding:8px 10px;background:var(--s2);border-radius:6px;border-left:3px solid var(--s4)">${t.description}</p>`}
+      <div style="display:flex;flex-wrap:wrap;gap:10px;font-size:11px;color:var(--t3);margin-bottom:9px">
+        <span style="display:flex;align-items:center;gap:4px"><${Av} name=${t.assignee_name||'?'} sz=${16}/>${t.assignee_name||'Unassigned'}</span>
+        ${t.due_date&&html`<span style="display:flex;align-items:center;gap:3px"><${Ic} n="clock" s=${10}/>${fmtDate(t.due_date)}${t.due_time?' · '+fmtT(t.due_time):''}</span>`}
+        ${t.shift&&t.shift!=='none'&&html`<span style="text-transform:capitalize">${t.shift} shift</span>`}
+      </div>
+      ${t.checklist.length>0&&html`
+      <div style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--t3);margin-bottom:5px">
+          <span style="font-weight:600">Checklist</span>
+          <span style="font-family:'Geist Mono';color:${cp===100?'#10b981':'var(--t3)'}">${cd}/${t.checklist.length} done</span>
+        </div>
+        <${Bar} v=${cp} c=${cp===100?'#10b981':cp>50?'#60a5fa':'#f59e0b'}/>
+        <div style="display:flex;flex-direction:column;gap:3px;margin-top:7px">
+          ${t.checklist.map(c=>html`<div key=${c.id} style="display:flex;align-items:center;gap:7px">
+            <div style="width:14px;height:14px;border-radius:4px;border:1.5px solid ${c.done?'#10b981':'var(--s4)'};background:${c.done?'#10b981':'transparent'};flex-shrink:0;display:flex;align-items:center;justify-content:center">
+              ${c.done&&html`<${Ic} n="ok" s=${9} c="white"/>`}
+            </div>
+            <span style="font-size:12px;color:${c.done?'var(--t3)':'var(--t2)'};text-decoration:${c.done?'line-through':'none'}">${c.text}</span>
+          </div>`)}
+        </div>
+      </div>`}
+      ${(t.image_proof_before||t.image_proof_after)&&html`<div style="display:flex;align-items:center;gap:6px;background:var(--edim);border:1px solid var(--eglow);border-radius:6px;padding:6px 10px;font-size:11px;color:var(--em);margin-bottom:${actions?'9px':'0'}"><${Ic} n="cam" s=${11}/>Photo proof attached</div>`}
+      ${actions&&html`<div style="display:flex;gap:7px;margin-top:2px">
+        <button class="btn bp" style="flex:1;justify-content:center;font-size:12px" onClick=${()=>onApprove(t.id)}><${Ic} n="ok" s=${12}/>Approve</button>
+        <button class="btn bg" style="flex:1;justify-content:center;font-size:12px;color:var(--rd);border-color:rgba(239,68,68,.2)" onClick=${()=>onReject(t.id)}><${Ic} n="x" s=${12}/>Reject</button>
+      </div>`}
+      ${t.rejection_reason&&html`<p style="font-size:11px;color:var(--rd);margin-top:7px;background:rgba(239,68,68,.06);border-radius:5px;padding:6px 10px">Reason: ${t.rejection_reason}</p>`}
+    </div>`;
+  };
+  const Sec=({title,items,actions,empty})=>html`<div><p style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">${title} · ${items.length}</p>
+    ${items.length?html`<div style="display:flex;flex-direction:column;gap:7px">${items.map(t=>html`<${Row} t=${t} actions=${actions}/>`)}</div>`:html`<p style="font-size:13px;color:var(--t4);padding:4px 0">${empty}</p>`}</div>`;
+  return html`
+  <div class="pg" style="display:flex;flex-direction:column;gap:18px">
+    <div><p style="font-size:19px;font-weight:700;letter-spacing:-.2px">Approvals</p><p style="font-size:12px;color:var(--t3);margin-top:2px">${pend.length} task${pend.length!==1?'s':''} awaiting review</p></div>
+    <${Sec} title="Awaiting Review" items=${pend} actions=${true}  empty="Nothing pending review"/>
+    <${Sec} title="Approved"        items=${appr} actions=${false} empty="No approved tasks"/>
+    <${Sec} title="Rejected"        items=${rej}  actions=${false} empty="No rejected tasks"/>
+  </div>`;
+};
+
+/* ── ATTENDANCE PAGE ───────────────────────────── */
+const Attendance=({user,myAtt,onCI,onCO,isA,allAtt,users})=>{
+  const todayStr=today();
+  const todayRec=myAtt.find(a=>a.date===todayStr);
+  const isIn=!!(todayRec&&todayRec.start_time&&!todayRec.end_time);
+  const history=myAtt.filter(a=>a.date!==todayStr).slice(0,7);
+  const[tab,sTab]=useState('me');
+  const[selDate,sSelDate]=useState(todayStr);
+  const dur=r=>{
+    if(!r.start_time||!r.end_time)return null;
+    const m=Math.round((new Date(r.end_time)-new Date(r.start_time))/60000);
+    return m>=60?`${Math.floor(m/60)}h ${m%60}m`:`${m}m`;
+  };
+  const dayRecs=allAtt.filter(r=>r.date===selDate);
+  const recByUser={};
+  dayRecs.forEach(r=>{if(!recByUser[r.user_id]||new Date(r.start_time)>new Date(recByUser[r.user_id].start_time))recByUser[r.user_id]=r;});
+  const staffUsers=users.filter(u=>u.role==='staff'||u.role==='supervisor');
+  const present=staffUsers.filter(u=>recByUser[u.id]&&recByUser[u.id].start_time).length;
+  return html`
+  <div class="pg" style="display:flex;flex-direction:column;gap:13px">
+    <div><p style="font-size:19px;font-weight:700;letter-spacing:-.2px">Attendance</p><p style="font-size:12px;color:var(--t3);margin-top:2px">${new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'})}</p></div>
+    ${isA&&html`<div class="tabrow">
+      <button class="tb ${tab==='me'?'on':''}" onClick=${()=>sTab('me')}>My Attendance</button>
+      <button class="tb ${tab==='staff'?'on':''}" onClick=${()=>sTab('staff')}>Staff Attendance</button>
+    </div>`}
+    ${tab==='me'&&html`
+    <div class="card" style="padding:16px">
+      <p style="font-size:12px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:13px">Today</p>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="position:relative">
+          <${Av} name=${user.name} sz=${52}/>
+          ${isIn&&html`<span class="duty" style="position:absolute;bottom:-1px;right:-1px;width:11px;height:11px;border-radius:50%;background:var(--em);border:2px solid var(--s2)"/>`}
+        </div>
+        <div style="flex:1">
+          <p style="font-size:15px;font-weight:700">${user.name}</p>
+          <p style="font-size:12px;color:var(--t3);margin-top:2px;font-family:'Geist Mono'">
+            ${todayRec?.start_time?`In  ${fmtDT(todayRec.start_time)}`:'Not clocked in'}
+            ${todayRec?.end_time?`  ·  Out  ${fmtDT(todayRec.end_time)}`:''}
+          </p>
+          ${todayRec&&!todayRec.end_time&&todayRec.start_time&&html`
+            <p style="font-size:11px;color:var(--em);margin-top:3px;display:flex;align-items:center;gap:4px"><span class="duty" style="width:6px;height:6px;border-radius:50%;background:var(--em)"/>On duty</p>`}
+        </div>
+        <div>
+          ${!todayRec||(!todayRec.start_time)?html`<button class="btn bp" onClick=${onCI}><${Ic} n="clock" s=${13}/>Clock In</button>`:
+           !todayRec.end_time?html`<button class="btn bg" style="color:var(--ya);border-color:rgba(245,158,11,.25)" onClick=${onCO}><${Ic} n="clock" s=${13}/>Clock Out</button>`:
+           html`<span class="badge s-completed">Shift Done</span>`}
+        </div>
+      </div>
+    </div>
+    ${history.length>0&&html`
+    <div class="card" style="overflow:hidden">
+      <div class="chd"><span style="font-size:13px;font-weight:600">Recent History</span></div>
+      <div class="dl">
+        ${history.map(r=>html`<div key=${r.id} style="display:flex;align-items:center;gap:12px;padding:10px 14px">
+          <div style="flex:1"><p style="font-size:12px;font-weight:600">${fmtDate(r.date)}</p>
+            <p style="font-size:11px;color:var(--t3);margin-top:1px;font-family:'Geist Mono'">
+              ${r.start_time?fmtDT(r.start_time):'—'} → ${r.end_time?fmtDT(r.end_time):'—'}
+            </p>
+          </div>
+          ${dur(r)&&html`<span style="font-size:11px;color:var(--t3);font-family:'Geist Mono';background:var(--s3);padding:3px 7px;border-radius:5px">${dur(r)}</span>`}
+        </div>`)}
+      </div>
+    </div>`}`}
+    ${tab==='staff'&&html`
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+      <p style="font-size:12px;color:var(--t3)">${present}/${staffUsers.length} present</p>
+      <input type="date" value=${selDate} max=${todayStr} onChange=${e=>sSelDate(e.target.value)} style="background:var(--s3);border:1px solid var(--s4);border-radius:6px;padding:5px 9px;font-size:12px;color:var(--t2);cursor:pointer"/>
+    </div>
+    <div class="card" style="overflow:hidden">
+      <div class="dl">
+        ${staffUsers.length===0&&html`<div style="padding:24px;text-align:center;color:var(--t3);font-size:13px">No staff members found</div>`}
+        ${staffUsers.map(u=>{
+          const r=recByUser[u.id];
+          const onDuty=r&&r.start_time&&!r.end_time;
+          const done=r&&r.end_time;
+          const absent=!r||!r.start_time;
+          const statusColor=absent?'var(--t3)':done?'#10b981':'var(--em)';
+          const statusLabel=absent?'Absent':done?'Done':'On duty';
+          return html`<div key=${u.id} style="display:flex;align-items:center;gap:12px;padding:11px 14px">
+            <div style="position:relative">
+              <${Av} name=${u.name} sz=${38}/>
+              ${onDuty&&html`<span style="position:absolute;bottom:0;right:0;width:9px;height:9px;border-radius:50%;background:var(--em);border:2px solid var(--s2)"/>`}
+            </div>
+            <div style="flex:1;min-width:0">
+              <p style="font-size:13px;font-weight:600">${u.name}</p>
+              <p style="font-size:11px;color:var(--t3);margin-top:1px;font-family:'Geist Mono'">
+                ${r?.start_time?`In ${fmtDT(r.start_time)}`:'—'}${r?.end_time?` · Out ${fmtDT(r.end_time)}`:''}
+              </p>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+              <span style="font-size:11px;font-weight:600;color:${statusColor}">${statusLabel}</span>
+              ${dur(r)&&html`<span style="font-size:11px;color:var(--t3);font-family:'Geist Mono';background:var(--s3);padding:2px 6px;border-radius:4px">${dur(r)}</span>`}
+            </div>
+          </div>`;
+        })}
+      </div>
+    </div>`}
+  </div>`;
+};
+
+/* ── REPORTS PAGE ──────────────────────────────── */
+const Reports=()=>{
+  const PERIODS=['daily','weekly','monthly','yearly'];
+  const[period,sPeriod]=useState('weekly');
+  const[refDate,sRefDate]=useState(today());
+  const[data,sData]=useState(null);
+  const[loading,sLoading]=useState(false);
+  const[view,sView]=useState('att');
+
+  const load=async(p,d)=>{sLoading(true);try{const r=await A.report(p,d);sData(r);}catch(e){notify(e.message,'err');}sLoading(false);};
+  useEffect(()=>{load(period,refDate);},[period,refDate]);
+
+  const nav=dir=>{
+    const d=new Date(refDate+'T00:00');
+    if(period==='daily')d.setDate(d.getDate()+dir);
+    else if(period==='weekly')d.setDate(d.getDate()+dir*7);
+    else if(period==='monthly')d.setMonth(d.getMonth()+dir);
+    else d.setFullYear(d.getFullYear()+dir);
+    sRefDate(d.toISOString().slice(0,10));
+  };
+
+  const periodLabel=()=>{
+    if(!data)return '';
+    const from=new Date(data.date_from+'T00:00'),to=new Date(data.date_to+'T00:00');
+    const sh={day:'numeric',month:'short'};
+    if(period==='daily')return from.toLocaleDateString('en-IN',{weekday:'long',...sh,year:'numeric'});
+    if(period==='weekly')return `${from.toLocaleDateString('en-IN',sh)} – ${to.toLocaleDateString('en-IN',sh)}`;
+    if(period==='monthly')return from.toLocaleDateString('en-IN',{month:'long',year:'numeric'});
+    return String(from.getFullYear());
+  };
+
+  const fmtH=m=>{if(!m)return '—';const h=Math.floor(m/60),mn=m%60;return h?`${h}h${mn?' '+mn+'m':''}`:mn+'m';};
+
+  // Weekly day columns (Mon→Sun)
+  const weekDays=data&&period==='weekly'?(()=>{const ds=[];let d=new Date(data.date_from+'T00:00');const e=new Date(data.date_to+'T00:00');while(d<=e){ds.push(d.toISOString().slice(0,10));d.setDate(d.getDate()+1);}return ds;})():[];
+
+  // attendance lookup: user_id → date → record
+  const attMap={};
+  if(data)data.attendance.forEach(a=>{attMap[a.user_id]={};a.records.forEach(r=>{attMap[a.user_id][r.date]=r;});});
+
+  // stats (fixed: avg only over staff who actually worked)
+  const todayStr=today();
+  const totStaff=data?.attendance.length||0;
+  const totPresent=data?.attendance.filter(a=>a.days_present>0).length||0;
+  const totTasks=data?.tasks.total||0;
+  const totDone=(data?.tasks.completed||0)+(data?.tasks.approved||0);
+  const totMissed=data?.tasks.missed||0;
+  const compRate=totTasks?Math.round(totDone/totTasks*100):0;
+  const workedStaff=data?.attendance.filter(a=>a.total_minutes>0)||[];
+  const avgMins=workedStaff.length?Math.round(workedStaff.reduce((s,a)=>s+a.total_minutes,0)/workedStaff.length):0;
+  const passedDays=period==='weekly'?weekDays.filter(d=>d<=todayStr).length:0;
+
+  const exportCSV=()=>{
+    if(!data)return;
+    const tm={};(data.tasks.by_user||[]).forEach(u=>{tm[u.user_id]=u;});
+    const rows=[['Period','Date From','Date To','Staff','Days Present','Calendar Days','Total Hours','Tasks','Done','Missed','Active','Pending','Rate']];
+    data.attendance.forEach(a=>{
+      const t=tm[a.user_id]||{};const done=(t.completed||0)+(t.approved||0);
+      const rate=t.total?Math.round(done/t.total*100)+'%':'—';
+      const hrs=`${Math.floor(a.total_minutes/60)}:${String(a.total_minutes%60).padStart(2,'0')}`;
+      rows.push([data.period,data.date_from,data.date_to,a.user_name,a.days_present,data.calendar_days,hrs,t.total||0,done,t.missed||0,t.in_progress||0,t.pending||0,rate]);
+    });
+    rows.push([],['--- Attendance Detail ---'],['Staff','Date','Clock In','Clock Out','Duration (min)']);
+    data.attendance.forEach(a=>{a.records.forEach(r=>{
+      const ci=r.start_time?new Date(r.start_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:false}):'';
+      const co=r.end_time?new Date(r.end_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:false}):'';
+      rows.push([a.user_name,r.date,ci,co,r.minutes||'']);
+    });});
+    if(data.task_list?.length){
+      rows.push([],['--- Task List ---'],['Title','Assigned To','Status','Priority','Due Date']);
+      data.task_list.forEach(t=>rows.push([t.title,t.user_name,t.status,t.priority,t.due_date||'']));
+    }
+    const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+    const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'});
+    const url=URL.createObjectURL(blob);const el=document.createElement('a');
+    el.href=url;el.download=`hobb-${data.period}-${data.date_from}.csv`;el.click();URL.revokeObjectURL(url);
+  };
+
+  const HDR='display:flex;align-items:center;padding:8px 14px;border-bottom:1px solid var(--s4);font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;background:var(--s2)';
+  const ROW='display:flex;align-items:center;padding:10px 14px;border-bottom:1px solid var(--s3)';
+  const NM='flex:1;display:flex;align-items:center;gap:8px;min-width:0';
+
+  return html`
+  <div class="pg" style="display:flex;flex-direction:column;gap:13px">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+      <div><p style="font-size:19px;font-weight:700;letter-spacing:-.2px">Reports</p><p style="font-size:12px;color:var(--t3);margin-top:2px">Attendance & task analytics</p></div>
+      <button class="btn bg" onClick=${exportCSV} disabled=${!data} style="flex-shrink:0"><${Ic} n="upload" s=${13}/>Export CSV</button>
+    </div>
+
+    <div class="tabrow">${PERIODS.map(p=>html`<button key=${p} class="tb ${period===p?'on':''}" onClick=${()=>{sPeriod(p);sRefDate(today());sData(null);}}>${p[0].toUpperCase()+p.slice(1)}</button>`)}</div>
+
+    <div style="display:flex;align-items:center;gap:4px;background:var(--s2);border:1px solid var(--s3);border-radius:8px;padding:4px 8px">
+      <button class="bic" style="flex-shrink:0" onClick=${()=>nav(-1)}><${Ic} n="chevl" s=${14}/></button>
+      <span style="flex:1;text-align:center;font-size:13px;font-weight:600">${periodLabel()||'…'}</span>
+      <button class="bic" style="flex-shrink:0" onClick=${()=>nav(1)}><${Ic} n="chevr" s=${14}/></button>
+    </div>
+
+    ${loading&&html`<div style="padding:40px;text-align:center;color:var(--t3);font-size:13px">Loading…</div>`}
+
+    ${data&&!loading&&html`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div class="card" style="padding:14px">
+        <p style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">${period==='daily'?'Present Today':'Staff Present'}</p>
+        <p style="font-size:26px;font-weight:700;line-height:1">${totPresent}<span style="font-size:13px;font-weight:400;color:var(--t3)"> / ${totStaff}</span></p>
+        <p style="font-size:11px;color:var(--t3);margin-top:3px">staff members</p>
+      </div>
+      <div class="card" style="padding:14px">
+        <p style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Task Completion</p>
+        <p style="font-size:26px;font-weight:700;line-height:1">${compRate}<span style="font-size:13px;font-weight:400;color:var(--t3)">%</span></p>
+        <p style="font-size:11px;color:var(--t3);margin-top:3px">${totDone} of ${totTasks} tasks</p>
+      </div>
+      <div class="card" style="padding:14px">
+        <p style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Missed Tasks</p>
+        <p style="font-size:26px;font-weight:700;line-height:1;color:${totMissed>0?'#ef4444':'var(--t1)'}">${totMissed}</p>
+        <p style="font-size:11px;color:var(--t3);margin-top:3px">across all staff</p>
+      </div>
+      <div class="card" style="padding:14px">
+        <p style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Avg Shift</p>
+        <p style="font-size:26px;font-weight:700;line-height:1">${fmtH(avgMins)}</p>
+        <p style="font-size:11px;color:var(--t3);margin-top:3px">per present staff</p>
+      </div>
+    </div>
+
+    <div class="tabrow">
+      <button class="tb ${view==='att'?'on':''}" onClick=${()=>sView('att')}>Attendance</button>
+      <button class="tb ${view==='tasks'?'on':''}" onClick=${()=>sView('tasks')}>Tasks</button>
+    </div>
+
+    ${view==='att'&&html`
+    <div class="card" style="overflow:hidden">
+      ${data.attendance.length===0
+        ?html`<div style="padding:24px;text-align:center;color:var(--t3);font-size:13px">No staff found</div>`
+        :html`
+        ${period==='daily'&&html`
+          <div style=${HDR}><span style="flex:1">Staff</span><span style="width:70px;text-align:center">Clock In</span><span style="width:70px;text-align:center">Clock Out</span><span style="width:60px;text-align:right">Hours</span></div>
+          ${data.attendance.map(a=>{const r=a.records[0];return html`<div key=${a.user_id} style=${ROW}>
+            <span style=${NM}><${Av} name=${a.user_name} sz=${28}/><span style="font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${a.user_name}</span></span>
+            <span style="width:70px;text-align:center;font-size:12px;font-family:'Geist Mono';color:${r?.start_time?'var(--t1)':'var(--t3)'}">${r?.start_time?fmtDT(r.start_time):'—'}</span>
+            <span style="width:70px;text-align:center;font-size:12px;font-family:'Geist Mono';color:${r?.end_time?'var(--t1)':r?.start_time?'#f59e0b':'var(--t3)'}">${r?.end_time?fmtDT(r.end_time):r?.start_time?'Active':'—'}</span>
+            <span style="width:60px;text-align:right;font-size:12px;font-weight:600;color:${a.total_minutes>0?'var(--t1)':'var(--t3)'}">${fmtH(a.total_minutes)}</span>
+          </div>`;})}
+        `}
+        ${period==='weekly'&&html`
+          <div style=${HDR}><span style="flex:1">Staff</span>${weekDays.map(d=>html`<span key=${d} style="width:26px;text-align:center">${new Date(d+'T00:00').toLocaleDateString('en-IN',{weekday:'narrow'})}</span>`)}<span style="width:44px;text-align:center">Days</span><span style="width:52px;text-align:right">Hours</span></div>
+          ${data.attendance.map(a=>html`<div key=${a.user_id} style=${ROW}>
+            <span style=${NM}><${Av} name=${a.user_name} sz=${28}/><span style="font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${a.user_name}</span></span>
+            ${weekDays.map(d=>{const r=attMap[a.user_id]?.[d];const future=d>todayStr;return html`<span key=${d} title=${d} style="width:26px;text-align:center;font-size:15px;color:${future?'var(--s4)':r?.start_time?(r.end_time?'#10b981':'#f59e0b'):'#4b5563'}">${future?'·':r?.start_time?'●':'○'}</span>`;})}
+            <span style="width:44px;text-align:center;font-size:11px;font-weight:600">${a.days_present}/${passedDays}</span>
+            <span style="width:52px;text-align:right;font-size:12px;font-weight:600">${fmtH(a.total_minutes)}</span>
+          </div>`)}
+        `}
+        ${(period==='monthly'||period==='yearly')&&html`
+          <div style=${HDR}><span style="flex:1">Staff</span><span style="width:90px;text-align:center">Days Present</span><span style="width:72px;text-align:center">Total Hours</span><span style="width:56px;text-align:right">Rate</span></div>
+          ${data.attendance.map(a=>{const rate=data.calendar_days?Math.round(a.days_present/data.calendar_days*100):0;return html`<div key=${a.user_id} style="padding:10px 14px;border-bottom:1px solid var(--s3)">
+            <div style="display:flex;align-items:center;margin-bottom:7px">
+              <span style=${NM}><${Av} name=${a.user_name} sz=${28}/><span style="font-size:12px;font-weight:600">${a.user_name}</span></span>
+              <span style="width:90px;text-align:center;font-size:12px;font-weight:600">${a.days_present} / ${data.calendar_days}</span>
+              <span style="width:72px;text-align:center;font-size:12px;font-weight:600">${fmtH(a.total_minutes)}</span>
+              <span style="width:56px;text-align:right;font-size:12px;font-weight:700;color:${rate>=80?'#10b981':rate>=50?'#f59e0b':'#ef4444'}">${rate}%</span>
+            </div>
+            <div style="margin-left:36px"><${Bar} v=${rate} c=${rate>=80?'#10b981':rate>=50?'#60a5fa':'#f59e0b'}/></div>
+          </div>`;})}
+        `}
+      `}
+    </div>`}
+
+    ${view==='tasks'&&html`
+    <div class="card" style="overflow:hidden">
+      ${totTasks===0
+        ?html`<div style="padding:24px;text-align:center;color:var(--t3);font-size:13px">No tasks in this period</div>`
+        :html`
+        <div style=${HDR}><span style="flex:1">Staff</span><span style="width:42px;text-align:center">Total</span><span style="width:48px;text-align:center;color:#10b981">Done</span><span style="width:50px;text-align:center;color:#ef4444">Missed</span><span style="width:46px;text-align:center;color:#60a5fa">Active</span><span style="width:50px;text-align:right">Rate</span></div>
+        ${data.tasks.by_user.map(u=>{
+          const done=u.completed+u.approved;
+          const rate=u.total?Math.round(done/u.total*100):0;
+          return html`<div key=${u.user_id} style="padding:10px 14px;border-bottom:1px solid var(--s3)">
+            <div style="display:flex;align-items:center;margin-bottom:${u.total?'6px':'0'}">
+              <span style=${NM}><${Av} name=${u.user_name} sz=${28}/><span style="font-size:12px;font-weight:600">${u.user_name}</span></span>
+              <span style="width:42px;text-align:center;font-size:12px;color:var(--t2)">${u.total||'—'}</span>
+              <span style="width:48px;text-align:center;font-size:12px;font-weight:600;color:${done>0?'#10b981':'var(--t3)'}">${done||'—'}</span>
+              <span style="width:50px;text-align:center;font-size:12px;font-weight:600;color:${u.missed>0?'#ef4444':'var(--t3)'}">${u.missed||'—'}</span>
+              <span style="width:46px;text-align:center;font-size:12px;color:${u.in_progress>0?'#60a5fa':'var(--t3)'}">${u.in_progress||'—'}</span>
+              <span style="width:50px;text-align:right;font-size:12px;font-weight:700;color:${u.total?(rate>=80?'#10b981':rate>=50?'#f59e0b':'#ef4444'):'var(--t3)'}">${u.total?rate+'%':'—'}</span>
+            </div>
+            ${u.total>0&&html`<div style="margin-left:36px"><${Bar} v=${rate} c=${rate>=80?'#10b981':rate>=50?'#60a5fa':'#f59e0b'}/></div>`}
+          </div>`;
+        })}
+      `}
+    </div>
+    ${(period==='daily'||period==='weekly')&&data.task_list&&data.task_list.length>0&&html`
+    <div class="card" style="overflow:hidden">
+      <div class="chd"><span style="font-size:13px;font-weight:600">Task List</span><span style="font-size:11px;color:var(--t3)">${data.task_list.length} task${data.task_list.length!==1?'s':''}</span></div>
+      <div class="dl">
+        ${data.task_list.map(t=>html`<div key=${t.id} style="display:flex;align-items:center;gap:10px;padding:9px 14px">
+          <div style="flex:1;min-width:0">
+            <p style="font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.title}</p>
+            <p style="font-size:11px;color:var(--t3);margin-top:1px">${t.user_name}${t.due_date&&period==='weekly'?' · '+fmtDate(t.due_date):''}</p>
+          </div>
+          <${Sb} s=${t.status}/>
+        </div>`)}
+      </div>
+    </div>`}
+    `}
+    `}
+  </div>`;
+};
+
+/* ── APP SHELL ─────────────────────────────────── */
+const App=()=>{
+  const[authed,sAuthed]=useState(()=>!!TK.parse(TK.get()));
+  const[user,sUser]=useState(null);
+  const[tasks,sTasks]=useState([]);
+  const[users,sUsers]=useState([]);
+  const[locs,sLocs]=useState([]);
+  const[myAtt,setMyAtt]=useState([]);
+  const[allAtt,setAllAtt]=useState([]);
+  const[page,sPage]=useState('dashboard');
+  const[loading,sLoad]=useState(true);
+  const[lastSync,sSync]=useState(null);
+  const[syncing,sSyncing]=useState(false);
+  const[sideOpen,sSide]=useState(false);
+
+  const fetchAll=useCallback(async()=>{
+    sSyncing(true);
+    try{
+      const[ts,us,ls,att]=await Promise.all([A.tasks(),A.users(),A.locs(),A.myAtt()]);
+      sTasks(ts||[]);sUsers(us||[]);sLocs(ls||[]);setMyAtt(att||[]);sSync(new Date());
+      A.allAtt().then(r=>setAllAtt(r||[])).catch(()=>{});
+    }catch(e){notify(e.message,'err');}
+    sSyncing(false);
+  },[]);
+
+  useEffect(()=>{
+    if(!authed){sLoad(false);return;}
+    fetchAll().finally(()=>sLoad(false));
+  },[authed]);
+
+  useEffect(()=>{
+    if(!authed)return;
+    const id=setInterval(fetchAll,POLL);
+    return()=>clearInterval(id);
+  },[authed,fetchAll]);
+
+  useEffect(()=>{
+    const h=()=>{sAuthed(false);sUser(null);sPage('dashboard');notify('Logged out','info');};
+    window.addEventListener('hobb:unauth',h);return()=>window.removeEventListener('hobb:unauth',h);
+  },[]);
+
+  // Set current user once users list loads
+  useEffect(()=>{
+    if(!users.length)return;
+    const pl=TK.parse(TK.get());if(!pl)return;
+    const me=users.find(u=>u.id===pl.sub);
+    if(me)sUser(me);
+  },[users]);
+
+  if(!authed)return html`<${Login} onLogin=${r=>{TK.set(r.access_token);sUser(r.user);sAuthed(true);}}/><${Toast}/>`;
+  if(loading||!user)return html`<${Loader}/><${Toast}/>`;
+
+  const isA=['admin','supervisor'].includes(user.role);
+  const NAV=[
+    {id:'dashboard', label:'Dashboard', icon:'home'},
+    {id:'tasks',     label:'Tasks',     icon:'tasks'},
+    {id:'staff',     label:'Staff',     icon:'users'},
+    ...(isA?[{id:'approvals',label:'Approvals',icon:'check'}]:[]),
+    {id:'attendance',label:'Attendance',icon:'clock'},
+    ...(isA?[{id:'reports',label:'Reports',icon:'chart'}]:[]),
+  ];
+  const PAGE_TITLE={dashboard:'Dashboard',tasks:'Tasks',staff:'Staff',approvals:'Approvals',attendance:'Attendance',reports:'Reports'};
+  const go=p=>{sPage(p);sSide(false);};
+
+  /* Task mutations */
+  const handleToggleCL=async(taskId,itemId,done)=>{
+    sTasks(ts=>ts.map(t=>t.id!==taskId?t:{...t,checklist:t.checklist.map(c=>c.id===itemId?{...c,done}:c)}));
+    try{await A.toggleCL(itemId,done);}
+    catch(e){notify(e.message,'err');sTasks(ts=>ts.map(t=>t.id!==taskId?t:{...t,checklist:t.checklist.map(c=>c.id===itemId?{...c,done:!done}:c)}));}
+  };
+  const handleUpdate=async(id,data,isFullTask=false)=>{
+    if(isFullTask){sTasks(ts=>ts.map(t=>t.id===id?data:t));return;}
+    sTasks(ts=>ts.map(t=>t.id===id?{...t,...data}:t));
+    try{const out=await A.updTask(id,data);sTasks(ts=>ts.map(t=>t.id===id?out:t));}
+    catch(e){notify(e.message,'err');fetchAll();}
+  };
+  const handleDelete=async id=>{
+    sTasks(ts=>ts.filter(t=>t.id!==id));
+    try{await A.delTask(id);notify('Task deleted','ok');}
+    catch(e){notify(e.message,'err');fetchAll();}
+  };
+  const handleDuplicate=async id=>{
+    try{const t=await A.dupTask(id);sTasks(ts=>[t,...ts]);notify('Task duplicated','ok');}
+    catch(e){notify(e.message,'err');}
+  };
+  const handleApprove=async id=>{
+    try{const out=await A.approve(id);sTasks(ts=>ts.map(t=>t.id===id?out:t));notify('Task approved','ok');}
+    catch(e){notify(e.message,'err');}
+  };
+  const handleReject=async id=>{
+    const reason=prompt('Reason for rejection (optional):');
+    try{const out=await A.reject(id,reason||'Rejected');sTasks(ts=>ts.map(t=>t.id===id?out:t));notify('Task rejected','ok');}
+    catch(e){notify(e.message,'err');}
+  };
+  const handleCI=async()=>{
+    try{const r=await A.clockIn();setMyAtt(a=>[r,...a.filter(x=>x.date!==today())]);notify('Clocked in','ok');}
+    catch(e){notify(e.message,'err');}
+  };
+  const handleCO=async()=>{
+    try{const r=await A.clockOut();setMyAtt(a=>a.map(x=>x.date===today()?r:x));notify('Clocked out','ok');}
+    catch(e){notify(e.message,'err');}
+  };
+
+  const myTasks=isA?tasks:tasks.filter(t=>t.assigned_to===user.id);
+
+  const syncAge=lastSync?Math.round((Date.now()-lastSync)/1000):null;
+  const syncLabel=syncAge===null?'Never':syncAge<5?'Just now':syncAge<60?`${syncAge}s ago`:`${Math.round(syncAge/60)}m ago`;
+
+  const PAGES={
+    dashboard:html`<${Dashboard} tasks=${myTasks} users=${users} myAtt=${myAtt}/>`,
+    tasks:html`<${Tasks} tasks=${myTasks} users=${users} locs=${locs} user=${user}
+      onToggleCL=${handleToggleCL}
+      onUpdate=${handleUpdate}
+      onDelete=${handleDelete}
+      onDuplicate=${handleDuplicate}
+      onAdd=${t=>sTasks(ts=>[t,...ts])}/>`,
+    staff:html`<${Staff} users=${users} tasks=${tasks} isAdmin=${isA}
+      onAdd=${u=>sUsers(us=>[u,...us])}
+      onRemove=${id=>sUsers(us=>us.filter(u=>u.id!==id))}/>`,
+    approvals:html`<${Approvals} tasks=${tasks} users=${users} onApprove=${handleApprove} onReject=${handleReject}/>`,
+    attendance:html`<${Attendance} user=${user} myAtt=${myAtt} allAtt=${allAtt} users=${users} isA=${isA} onCI=${handleCI} onCO=${handleCO}/>`,
+    reports:html`<${Reports}/>`,
+  };
+
+  const SideContent=()=>html`
+    <div class="sb-logo">
+      <div class="lm">H</div>
+      <div><p style="font-size:13px;font-weight:700;letter-spacing:-.1px">HOBB</p><p style="font-size:10px;color:var(--t3)">Management</p></div>
+    </div>
+    <div class="sb-nav">
+      <p class="sb-sec">Navigation</p>
+      ${NAV.map(n=>html`<button key=${n.id} class="ni ${page===n.id?'on':''}" onClick=${()=>go(n.id)}><${Ic} n=${n.icon} s=${15}/>${n.label}</button>`)}
+    </div>
+    <div class="sb-foot">
+      <div class="utile">
+        <${Av} name=${user.name} sz=${28}/>
+        <div style="flex:1;min-width:0"><p style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${user.name}</p><p style="font-size:10px;color:var(--t3);text-transform:capitalize">${user.role}</p></div>
+        <button class="bic" style="background:none;border:none;color:var(--t3)" onClick=${()=>{TK.set(null);sAuthed(false);sUser(null);}} title="Sign out"><${Ic} n="logout" s=${14}/></button>
+      </div>
+    </div>`;
+
+  return html`
+  <div>
+    <div class="sov ${sideOpen?'open':''}" onClick=${()=>sSide(false)}/>
+    <nav class="sb ${sideOpen?'open':''}"><${SideContent}/></nav>
+    <div class="wrap">
+      <header class="tbar">
+        <button class="mbbtn" onClick=${()=>sSide(true)}><${Ic} n="menu" s=${17}/></button>
+        <p class="tbar-title" style="font-size:13px;font-weight:600">${PAGE_TITLE[page]}</p>
+        <div style="margin-left:auto;display:flex;align-items:center;gap:12px">
+          <div style="display:flex;align-items:center;gap:6px;cursor:pointer" onClick=${()=>fetchAll()} title="Sync now">
+            <div class="sync-dot ${syncing?'syncing':''}"/>
+            <span style="font-size:11px;color:var(--t3);font-family:'Geist Mono'">${syncing?'Syncing…':syncLabel}</span>
+          </div>
+          <div style="width:1px;height:18px;background:var(--s3)"/>
+          <div style="display:flex;align-items:center;gap:9px">
+            <div style="text-align:right">
+              <p style="font-size:12px;font-weight:600;white-space:nowrap">${user.name}</p>
+              <p style="font-size:10px;color:var(--t3);text-transform:capitalize">${user.role}</p>
+            </div>
+            <${Av} name=${user.name} sz=${30}/>
+          </div>
+        </div>
+      </header>
+      <div class="pgarea">${PAGES[page]}</div>
+    </div>
+    <${Toast}/>
+  </div>`;
+};
+
+render(html`<${App}/>`,document.getElementById('root'));
+</script>
+</body>
+</html>

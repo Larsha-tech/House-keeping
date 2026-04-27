@@ -1,0 +1,76 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: hobb-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-hobb}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-hobb_pass}
+      POSTGRES_DB: ${POSTGRES_DB:-hobb}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-hobb} -d ${POSTGRES_DB:-hobb}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - hobb_net
+    # Expose only for local debugging — keep commented in production.
+    # ports:
+    #   - "5432:5432"
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: hobb-backend
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      UPLOAD_DIR: /storage/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      # Point this at a NAS mount in production (e.g. /mnt/nas/hobb/uploads)
+      - ${UPLOAD_VOLUME:-./storage/uploads}:/storage/uploads
+    networks:
+      - hobb_net
+    # Expose internally; nginx is the only public entrypoint.
+    expose:
+      - "8000"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8000/api/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      start_period: 40s
+      retries: 3
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: hobb-nginx
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "${NGINX_HTTP_PORT:-80}:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      # Mount the built frontend here (see README for build step)
+      - ./frontend-build:/usr/share/nginx/html:ro
+      # Serve uploads directly for higher throughput
+      - ${UPLOAD_VOLUME:-./storage/uploads}:/storage/uploads:ro
+    networks:
+      - hobb_net
+
+volumes:
+  db_data:
+
+networks:
+  hobb_net:
+    driver: bridge
