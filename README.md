@@ -149,6 +149,5 @@ hobb/
 4. Read **[`docs/BACKUP.md`](docs/BACKUP.md)** for backup automation and
    the cron table you should install.
 
-## License
 
 Private / unlicensed. Adjust to taste before distributing.
